@@ -1,0 +1,121 @@
+jobId: "1111"
+jobName: dp_sadp_policy
+jobType: Source Aligned Data Product
+developerId: 7679c14a-8908-42a5-8656-2abecbfa4b49
+domain: business
+alias: loading_policy_table_into_iceberg_on_s3
+discoveryPort:
+  name: dp_sadp_policy
+inputPorts:
+  - alias: Insurance_Policy_1
+    isDynamic: true
+    connection: Postgres Connection
+    tableName/query: policy
+    optional:
+      persistDataFrame: false
+      enableDataReconciliation: false
+      enforceSchema: false
+      dataSetUrn: urn:dv:dataset:d21f3048-5dde-48ca-b308-8420cece0efc
+      loggingOptions:
+        printSchema: true
+        count: true
+        showData: true
+    type: readPostGreSqlDbUsingJdbc
+productState:
+  isDynamic: true
+  alias: loading_policy_table_into_iceberg_on_s3
+  retentionVersions: ""
+  logicalSchema:
+    properties:
+      policy_id:
+        type: STRING
+        description: Primary key, unique identifier for the policy
+        sourceColumn: policy_id
+        sourceTable: insurance.policy
+      policy_number:
+        type: STRING
+        description: Unique policy number
+        sourceColumn: policy_number
+        sourceTable: insurance.policy
+      customer_id:
+        type: STRING
+        description: Reference to the customer (insurance.customer.customer_id)
+        sourceColumn: customer_id
+        sourceTable: insurance.policy
+      policy_type:
+        type: STRING
+        description: Type of policy (e.g., Health, Life, Vehicle)
+        sourceColumn: policy_type
+        sourceTable: insurance.policy
+      premium_amount:
+        type: STRING
+        description: Premium amount of the policy
+        sourceColumn: premium_amount
+        sourceTable: insurance.policy
+      sum_assured:
+        type: STRING
+        description: Sum assured in the policy
+        sourceColumn: sum_assured
+        sourceTable: insurance.policy
+      start_date:
+        type: STRING
+        description: Policy start date
+        sourceColumn: start_date
+        sourceTable: insurance.policy
+      end_date:
+        type: STRING
+        description: Policy end date
+        sourceColumn: end_date
+        sourceTable: insurance.policy
+      status:
+        type: STRING
+        description: Current status of the policy (Active, Lapsed, etc.)
+        sourceColumn: status
+        sourceTable: insurance.policy
+      payment_frequency:
+        type: STRING
+        description: Payment frequency (Monthly, Quarterly, Yearly)
+        sourceColumn: payment_frequency
+        sourceTable: insurance.policy
+      created_at:
+        type: DATETIME
+        description: Record creation timestamp
+        sourceColumn: created_at
+        sourceTable: insurance.policy
+      updated_at:
+        type: DATETIME
+        description: Record last update timestamp
+        sourceColumn: updated_at
+        sourceTable: insurance.policy
+  stateStoreType: loadDataIceberg
+  isProfilingEnabled: false
+  updateStrategy: Overwrite
+  tableName: iceberg_meta.dp_sadp_policy
+  warehousePath: s3a://dataverse/iceberg_warehouse_testing/
+  catalogName: postgres_catalog
+  optional:
+    persistDataFrame: false
+    enableDataReconciliation: false
+    enforceSchema: false
+    enforceSchemaMethod: Warning
+    catalogType: postgres
+    connection: s3_connection_by_vatsal
+  refreshInterval: 31 12 * * *
+transformation:
+  - isDynamic: true
+    alias: Spark_SQL_1
+    description: select all columns
+    sequence: 2
+    inputDataFrameList:
+      - inputDataFrame: Insurance_Policy_1
+        tempViewName: temp
+    query: select * from temp
+    optional:
+      persistDataFrame: false
+      loggingOptions:
+        printSchema: true
+        count: true
+        showData: true
+    type: operationThroughSqlQuery
+controlPort:
+  dataQualityRules: {}
